@@ -1,0 +1,109 @@
+name: Autograding Tests
+
+'on':
+  - push
+  - repository_dispatch
+
+permissions:
+  checks: write
+  actions: read
+  contents: read
+
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Pruebas registrarTrabajo
+        id: registrar-trabajo
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: registrarTrabajo
+          setup-command: ''
+          command: mvn -B -Dtest=GestorImpresionesRegistrarTest test
+          timeout: 10
+          max-score: 12
+
+      - name: Pruebas existeTrabajo
+        id: existe-trabajo
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: existeTrabajo
+          setup-command: ''
+          command: mvn -B -Dtest=GestorImpresionesExisteTest test
+          timeout: 10
+          max-score: 6
+
+      - name: Pruebas consultarSiguienteTrabajo
+        id: consultar-siguiente-trabajo
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: consultarSiguienteTrabajo
+          setup-command: ''
+          command: mvn -B -Dtest=GestorImpresionesConsultarTest test
+          timeout: 10
+          max-score: 4
+
+      - name: Pruebas procesarSiguienteTrabajo
+        id: procesar-siguiente-trabajo
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: procesarSiguienteTrabajo
+          setup-command: ''
+          command: mvn -B -Dtest=GestorImpresionesProcesarTest test
+          timeout: 10
+          max-score: 6
+
+      - name: Pruebas contarTrabajosPendientes
+        id: contar-trabajos-pendientes
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: contarTrabajosPendientes
+          setup-command: ''
+          command: mvn -B -Dtest=GestorImpresionesContarTest test
+          timeout: 10
+          max-score: 4
+
+      - name: Pruebas consultarEspaciosDisponibles
+        id: consultar-espacios-disponibles
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: consultarEspaciosDisponibles
+          setup-command: ''
+          command: mvn -B -Dtest=GestorImpresionesEspaciosTest test
+          timeout: 10
+          max-score: 4
+
+      - name: Pruebas listarTrabajos
+        id: listar-trabajos
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: listarTrabajos
+          setup-command: ''
+          command: mvn -B -Dtest=GestorImpresionesListarTest test
+          timeout: 10
+          max-score: 4
+
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          REGISTRAR-TRABAJO_RESULTS: "${{ steps.registrar-trabajo.outputs.result }}"
+          EXISTE-TRABAJO_RESULTS: "${{ steps.existe-trabajo.outputs.result }}"
+          CONSULTAR-SIGUIENTE-TRABAJO_RESULTS: "${{ steps.consultar-siguiente-trabajo.outputs.result }}"
+          PROCESAR-SIGUIENTE-TRABAJO_RESULTS: "${{ steps.procesar-siguiente-trabajo.outputs.result }}"
+          CONTAR-TRABAJOS-PENDIENTES_RESULTS: "${{ steps.contar-trabajos-pendientes.outputs.result }}"
+          CONSULTAR-ESPACIOS-DISPONIBLES_RESULTS: "${{ steps.consultar-espacios-disponibles.outputs.result }}"
+          LISTAR-TRABAJOS_RESULTS: "${{ steps.listar-trabajos.outputs.result }}"
+        with:
+          runners: registrar-trabajo,existe-trabajo,consultar-siguiente-trabajo,procesar-siguiente-trabajo,contar-trabajos-pendientes,consultar-espacios-disponibles,listar-trabajos
